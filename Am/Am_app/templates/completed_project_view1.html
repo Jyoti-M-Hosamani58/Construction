@@ -1,0 +1,221 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>TECHNO FAB</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Construction Company Website Template" name="keywords">
+    <meta content="Construction Company Website Template" name="description">
+
+    <!-- Favicon -->
+    <link href="{% static 'img/favicon.ico' %}" rel="icon">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- CSS Libraries -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <style>
+        /* Custom styling for the page */
+        body {
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #343a40;
+        }
+
+        .pdf-card {
+            margin-bottom: 20px;
+            height: 200px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            background-color: #ffecd1;
+        }
+
+        .card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .card-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 15px;
+        }
+
+        .btn-view {
+            background-color: #000;
+            color: orange;
+            border-radius: 0;
+            margin-top: auto;
+            text-align: center;
+            padding: 10px;
+            text-decoration: none;
+        }
+
+        .btn-view:hover {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .description-box {
+            border: 1px solid #343a40;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            margin-top: 10px;
+            flex-grow: 1;
+        }
+
+        /* Delete button styles */
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: orange; /* Default orange */
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            display: none; /* Hidden initially */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Hover effect on delete button */
+        .card:hover .delete-btn {
+            display: block;
+        }
+
+        .delete-btn:hover {
+            background-color: red; /* Red color when hovered */
+        }
+
+        .delete-btn:active {
+            background-color: darkred; /* Dark red when clicked */
+        }
+
+        @media (max-width: 768px) {
+            .col-6 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .col-12 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="wrapper">
+    <!-- Top Bar Start -->
+    <div class="top-bar">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-lg-4 col-md-12 text-center">
+                    <div class="logo">
+                        <a href="index.html">
+                            <img src="{% static 'img/logo1.png' %}" alt="Logo"> <!-- Adjusted height -->
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-8 col-md-7 d-none d-lg-block">
+                    <div class="row justify-content-center">
+                        <div class="col-6 text-center">
+                            <div class="top-bar-item">
+                               <i class="fa fa-phone-square"></i>
+                               <h3 style="font-weight: bold;">Call Us</h3>
+                               <p style="font-weight: bold;">+91 08362972144</p>
+                            </div>
+                        </div>
+                        <div class="col-6 text-center">
+                            <div class="top-bar-item">
+                               <i class="fa fa-envelope" aria-hidden="true"></i>
+                               <h3 style="font-weight: bold;">Email Us</h3>
+                               <p style="font-weight: bold;">technofabpeb@gmail.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Top Bar End -->
+
+    <!-- Nav Bar Start -->
+    {% include 'admin_nav.html' %}
+    <!-- Nav Bar End -->
+</div>
+
+<div class="container my-5">
+    <h1>Completed Projects</h1>
+    <div class="row">
+        {% for project in projects %}
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+                <div class="card bg-dark text-white">
+                    <div class="card-body">
+                        <div class="description-box mb-3">
+                            <p>{{ project.description|default:"No Description" }}</p>
+                        </div>
+                        {% if project.pdf %}
+                            <a href="{{ project.pdf.url }}" target="_blank" class="btn btn-view">View Project</a>
+                        {% endif %}
+                        <button class="btn delete-btn" onclick="deleteProject('{{ project.id }}', this)">Delete</button>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12 text-center">
+                <p>No projects found.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    // Function to confirm and delete project
+    function deleteProject(projectId, button) {
+        if (confirm("Are you sure you want to delete this project?")) {
+            $.ajax({
+                url: '/delete_project/' + projectId + '/',
+                type: 'DELETE',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $(button).closest('.col-12').fadeOut();
+                        alert('Project deleted successfully');
+                    } else {
+                        alert('Error: ' + response.error);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('An error occurred: ' + error);
+                }
+            });
+        }
+    }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>
